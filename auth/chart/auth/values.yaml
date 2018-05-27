@@ -1,0 +1,40 @@
+# Default values for micro-auth.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+
+image:
+  repository: ibmcase/bluecompute-auth
+  tag: latest
+  pullPolicy: Always
+
+dataloader:
+  image:
+    repository: ibmcase/bluecompute-dataloader
+    tag: latest
+
+resources:
+  limits:
+    memory: 128Mi
+  requests:
+    memory: 64Mi
+
+customer:
+  service:
+    url:
+
+service:
+  name: auth
+  type: ClusterIP
+  externalPort: 8080
+  internalPort: 8080
+
+hs256key:
+  skipDelete: true
+  secretName: hs256-key
+  secret:
+
+global:
+  hs256key:
+    secretName:
+    secret:

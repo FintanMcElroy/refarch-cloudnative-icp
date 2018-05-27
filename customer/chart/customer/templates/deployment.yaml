@@ -1,0 +1,57 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  labels:
+    app: bluecompute
+    micro: customer
+    tier: backend
+    release: {{.Release.Name | quote }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: bluecompute
+        micro: customer
+        tier: backend
+      annotations:
+        pod.beta.kubernetes.io/init-containers: '[
+          {
+            "name": "test-couchdb",
+            "image": "{{ .Values.dataloader.image.repository }}:{{ .Values.dataloader.image.tag }}",
+            "imagePullPolicy": "IfNotPresent",
+            "command": ["/bin/bash", "-c"],
+            "args": ["couchdb_uri=`echo ${couchdb} | jq .url -r`; until curl --max-time 1 ${couchdb_uri}; do echo waiting for couchdb; /bin/sleep 1; done;"],
+            "env": [{
+              "name": "couchdb",
+              "valueFrom": {
+                "secretKeyRef": {
+                  "name": "{{ template "couchdbBinding" . }}",
+                  "key": "binding"
+                }
+              }
+            }]
+          }
+        ]'
+    spec:
+      containers:
+      - name: customer
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: HS256_KEY
+          valueFrom:
+            secretKeyRef:
+                name: {{ template "hs256SecretName" . }}
+                key:  key
+        - name: couchdb
+          valueFrom:
+            secretKeyRef:
+                name: {{ template "couchdbBinding" . }}
+                key: binding
+        ports:
+        - containerPort: {{ .Values.service.internalPort }}
+        resources:
+{{ toYaml .Values.resources | indent 12 }}

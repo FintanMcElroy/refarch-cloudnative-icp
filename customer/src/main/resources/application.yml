@@ -1,0 +1,24 @@
+eureka:
+  instance:
+     preferIpAddress: true
+  client:
+    serviceUrl:
+       defaultZone: http://microservices-refapp-eureka-chrisking.mybluemix.net/eureka/
+
+# Server configuration
+server:
+  context-path: /micro
+  port: 8080
+
+# Spring properties
+spring:
+  application:
+     name: customer-microservice
+     
+     cloudant:
+        protocol: https
+        username: 
+        password: 
+        host: 
+        port: 443
+        database: customers

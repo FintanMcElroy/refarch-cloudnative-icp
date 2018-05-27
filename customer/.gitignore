@@ -1,0 +1,15 @@
+/bin/
+/build/
+/.gradle/
+
+/.settings
+/.classpath
+docker/app.jar
+.*.swp
+.idea
+
+chart/customer/charts
+chart/customer/requirements.lock
+
+chart/customer-ce/charts
+chart/customer-ce/requirements.lock

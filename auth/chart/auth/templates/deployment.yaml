@@ -1,0 +1,49 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  labels:
+    app: bluecompute
+    micro: auth
+    tier: backend
+    release: {{.Release.Name | quote }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: bluecompute
+        micro: auth
+        tier: backend
+      annotations:
+        pod.beta.kubernetes.io/init-containers: '[
+          {
+            "name": "test-customer-service",
+            "image": "{{ .Values.dataloader.image.repository }}:{{ .Values.dataloader.image.tag }}",
+            "imagePullPolicy": "IfNotPresent",
+            "command": ["/bin/bash", "-c"],
+            "args": ["until curl {{ template "customerUrl" . }}; do echo waiting for customer-service at {{ template "customerUrl" . }}; sleep 1; done"]
+          }
+        ]'
+    spec:
+      containers:
+      - name: auth
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: CUSTOMERSERVICE_URL
+          value: {{ template "customerUrl" . }}
+        volumeMounts:
+        - mountPath: /var/run/secrets/hs256-key
+          name: hs256-key
+        ports:
+        - containerPort: {{ .Values.service.internalPort }}
+          protocol: TCP
+        resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+      - name: hs256-key
+        secret:
+          defaultMode: 420
+          secretName: {{ template "hs256SecretName" . }}

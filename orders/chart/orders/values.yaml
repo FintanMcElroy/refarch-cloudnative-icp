@@ -1,0 +1,48 @@
+# Default values for micro-orders.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+
+image:
+  repository: ibmcase/bluecompute-orders
+  tag: latest
+  pullPolicy: Always
+
+hs256key:
+  skipDelete: true
+  secretName: hs256-key
+  secret:
+
+resources:
+  limits:
+    memory: 384Mi
+  requests:
+    memory: 128Mi
+
+dataloader:
+  image:
+    repository: ibmcase/bluecompute-dataloader
+    tag: latest
+
+service:
+  name: orders
+  type: ClusterIP
+  externalPort: 8080
+  internalPort: 8080
+
+ingress:
+  enabled: false
+  loadBalancerID: ENTER_PRIVATE_LOAD_BALANCER_ID
+
+tls:
+  enabled: false
+  crt: ENTER_BASE64_ENCODED_CERTIFICATE
+  key: ENTER_BASE64_ENCODED_KEY
+
+mysql:
+  binding:
+    name: binding-orders-mysql
+
+messagehub:
+  binding:
+    name:
