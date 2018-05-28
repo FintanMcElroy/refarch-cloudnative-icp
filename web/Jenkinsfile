@@ -29,9 +29,9 @@ podTemplate(label: 'gradlePod',
                 REGISTRY=`cat /var/run/configs/registry-config/registry`
 
                 set +x
-                DOCKER_USER=`cat /var/run/secrets/registry-account/username`
-                DOCKER_PASSWORD=`cat /var/run/secrets/registry-account/password`
-                docker login -u=\${DOCKER_USER} -p=\${DOCKER_PASSWORD} \${REGISTRY}
+                ICP_USER=`cat /var/run/secrets/registry-account/username`
+                ICP_PASSWORD=`cat /var/run/secrets/registry-account/password`
+                docker login -u=\${ICP_USER} -p=\${ICP_PASSWORD} \${REGISTRY}
                 set -x
 
                 docker push \${REGISTRY}/\${NAMESPACE}/bluecompute-ce-web:${env.BUILD_NUMBER}
@@ -45,11 +45,11 @@ podTemplate(label: 'gradlePod',
                 set +e
                 NAMESPACE=`cat /var/run/configs/registry-config/namespace`
                 REGISTRY=`cat /var/run/configs/registry-config/registry`
-                DOCKER_USER=`cat /var/run/secrets/registry-account/username`
-                DOCKER_PASSWORD=`cat /var/run/secrets/registry-account/password`
+                ICP_USER=`cat /var/run/secrets/registry-account/username`
+                ICP_PASSWORD=`cat /var/run/secrets/registry-account/password`
                 wget --no-check-certificate https://10.10.1.10:8443/api/cli/icp-linux-amd64
                 bx plugin install icp-linux-amd64
-                bx pr login -a https://10.10.1.10:8443 --skip-ssl-validation -u \${DOCKER_USER} -p \${DOCKER_PASSWORD} -c id-cloudcluster-account
+                bx pr login -a https://10.10.1.10:8443 --skip-ssl-validation -u \${ICP_USER} -p \${ICP_PASSWORD} -c id-cloudcluster-account
                 bx pr cluster-config cloudcluster
                 helm init --client-only
                 helm repo add bluecompute https://raw.githubusercontent.com/ibm-cloud-academy/icp-jenkins-helm-bluecompute/master/charts
